@@ -3,7 +3,7 @@ import socket
 import utime
 import machine
 import _thread
-from CONFIG import SSID, PASSWORD, PORT, URL, FILE
+from CONFIG import SSID, PASSWORD, PORT, URL, FILE, HORN_FREQUENCY
 from ota import OTAUpdater
 
 LED = machine.Pin("LED",machine.Pin.OUT)
@@ -13,7 +13,7 @@ Left = machine.Pin(8,machine.Pin.OUT)
 #Setup a PWM Output
 Buzzer = machine.PWM(machine.Pin(15)) 
 Buzzer.duty_u16(0) #Start with the buzzer off
-Frequency = 1000  #set a frequency of 1 Khz
+Frequency = HORN_FREQUENCY #set a frequency of 1 Khz
 
 ota_updater = OTAUpdater(URL, FILE)
 
@@ -114,12 +114,12 @@ def serve(connection):
             state = "OFF"
             status = "Turn off light"
         elif request =="/left?" or request =="/left":
-            #_thread.start_new_thread(left,())
-            _thread.start_new_thread(right,())
+            _thread.start_new_thread(left,())
+            #_thread.start_new_thread(right,())
             state = "OFF"
         elif request =="/right?" or request =="/right":
-            #_thread.start_new_thread(right,())
-            _thread.start_new_thread(left,())
+            _thread.start_new_thread(right,())
+            #_thread.start_new_thread(left,())
             state = "OFF"
         elif request == "/horn?" or request == "/horn":
             _thread.start_new_thread(horn,())
