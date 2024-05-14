@@ -127,7 +127,8 @@ def serve(connection):
             _thread.start_new_thread(left,())
             state = "OFF"
         elif "/horn" in request:
-            Frequency = int(request.split("=")[1])
+            Frequency = [1000]
+            Frequency[0] = int(request.split("=")[1])
             _thread.start_new_thread(horn,(Frequency))
         elif request =="/alloff?":
             status = "Turning of all"
@@ -181,11 +182,12 @@ def serve(connection):
         client.send(html)
         client.close()
 
-def horn(Frequency = 1000):
+def horn(Frequency=[1000]):
     status = "Horn"
+    print("freq: ", Frequency)
     Buzzer.freq(Frequency)
     Buzzer.duty_u16(32767)
-    utime.sleep_ms(200)
+    utime.sleep_ms(500)
     Buzzer.duty_u16(0)
     #utime.sleep_ms(900)
     return status
