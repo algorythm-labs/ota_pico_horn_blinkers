@@ -3,7 +3,7 @@ import socket
 import utime
 import machine
 import _thread
-from CONFIG import SSID, PASSWORD, PORT, URL, FILE, HORN_FREQUENCY
+from CONFIG import SSID, PASSWORD, PORT, URL, FILE
 from ota import OTAUpdater
 
 LED = machine.Pin("LED",machine.Pin.OUT)
@@ -13,7 +13,6 @@ Left = machine.Pin(8,machine.Pin.OUT)
 #Setup a PWM Output
 Buzzer = machine.PWM(machine.Pin(15)) 
 Buzzer.duty_u16(0) #Start with the buzzer off
-Frequency = HORN_FREQUENCY #set a frequency of 1 Khz
 
 ota_updater = OTAUpdater(URL, FILE)
 
@@ -60,8 +59,14 @@ def webpage(state, status):
             <form action="./right">
             <input type="submit" value="Right" />
             </form>
-            <form action="./horn">
+            <form action="./horn" method="get">
+            <div>
+            <label for="Freq">Horn Frequency</label>
+            <input id="Freq" type="number" name="Freq" min="1" max="20000" />
+            </div>
+            <div>
             <input type="submit" value="Horn" />
+            </div>
             </form>
             <form action="./allon">
             <input type="submit" value="All on" />
@@ -114,15 +119,16 @@ def serve(connection):
             state = "OFF"
             status = "Turn off light"
         elif request =="/left?" or request =="/left":
-            _thread.start_new_thread(left,())
-            #_thread.start_new_thread(right,())
+            #_thread.start_new_thread(left,())
+            _thread.start_new_thread(right,())
             state = "OFF"
         elif request =="/right?" or request =="/right":
-            _thread.start_new_thread(right,())
-            #_thread.start_new_thread(left,())
+            #_thread.start_new_thread(right,())
+            _thread.start_new_thread(left,())
             state = "OFF"
-        elif request == "/horn?" or request == "/horn":
-            _thread.start_new_thread(horn,())
+        elif "/horn" in request:
+            Frequency = int(request.split("=")[1])
+            _thread.start_new_thread(horn,(Frequency))
         elif request =="/alloff?":
             status = "Turning of all"
             LED.value(0)
@@ -175,7 +181,7 @@ def serve(connection):
         client.send(html)
         client.close()
 
-def horn():
+def horn(Frequency = 1000):
     status = "Horn"
     Buzzer.freq(Frequency)
     Buzzer.duty_u16(32767)
